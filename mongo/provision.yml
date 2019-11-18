@@ -1,0 +1,7 @@
+---
+- hosts: all
+  become: yes
+  roles:
+    - mongo-db
+  vars:
+    mongodb_conf_bindIp: "0.0.0.0"

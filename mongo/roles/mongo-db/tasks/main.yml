@@ -1,0 +1,30 @@
+---
+
+- name: Copy Mongod repo
+  copy:
+    src: mongodb-org-4.2.repo
+    dest: /etc/yum.repos.d/mongodb-org-4.2.repo
+
+- name: Install packages 
+  yum: 
+    name: mongodb-org
+    state: latest
+    update_cache: yes
+
+- name: Systemd Mongod Started
+  systemd:
+    state: started
+    name: mongod
+    daemon_reload: yes
+    enabled: yes
+
+- name: Copy Mongod Conf DB
+  copy:
+    src: mongod.conf
+    dest: /etc/mongod.conf
+
+- name: Systemd Mongod Restart
+  systemd:
+    state: restarted
+    name: mongod
+    enabled: yes
