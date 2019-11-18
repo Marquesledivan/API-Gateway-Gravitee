@@ -1,0 +1,8 @@
+---
+
+mongodb01: 54.233.132.27
+mongodb02: 54.233.132.27
+mongodb03: 54.233.132.27
+
+elastic_endpoint: 18.231.159.39
+elastic_port: 9200

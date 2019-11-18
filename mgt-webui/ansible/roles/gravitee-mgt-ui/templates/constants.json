@@ -1,0 +1,4 @@
+
+{
+  "baseURL": "http://{{ ip_full_version.stdout }}:8083/management/"
+}
