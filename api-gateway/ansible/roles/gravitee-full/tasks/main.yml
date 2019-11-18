@@ -1,0 +1,47 @@
+---
+
+- name: remove the openjdk package
+  yum:
+    name: ["jdk1.8-1.8.0_151-fcs.x86_64", "java-1.7.0-openjdk"]
+    state: absent
+  
+- name: install packages java and unzip
+  yum:
+    name: ["java-1.8.0-openjdk", "unzip", "rng-tools"]
+    state: latest
+
+- name: Systemd RNGd
+  systemd:
+    state: started
+    name: rngd
+    daemon_reload: yes
+    enabled: yes  
+
+- name: Creates directory of Gravitee 
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0775
+  with_items:
+    - /opt/graviteeio-management-api
+    - /opt/graviteeio-management-ui
+    - /opt/graviteeio-gateway
+
+- name: Set variable version of Gravitee
+  shell: echo $(curl -s https://gravitee.s3-sa-east-1.amazonaws.com/graviteeio-full.txt)
+  register: gravitee_full_version
+
+- name: Download API Gateway Gravitee Full
+  unarchive:
+    src: https://download.gravitee.io/graviteeio-apim/distributions/graviteeio-full-{{ gravitee_full_version.stdout }}.zip
+    dest: /tmp
+    remote_src: yes
+
+- name: Copy files Gravitee Full in /opt
+  shell: | 
+    rm -rf /opt/graviteeio-management-api/* /opt/graviteeio-management-ui/* /opt/graviteeio-gateway/*
+    mv /tmp/graviteeio-full-{{ gravitee_full_version.stdout }}/graviteeio-management-api-{{ gravitee_full_version.stdout }}/* /opt/graviteeio-management-api
+    mv /tmp/graviteeio-full-{{ gravitee_full_version.stdout }}/graviteeio-management-ui-{{ gravitee_full_version.stdout }}/* /opt/graviteeio-management-ui
+    mv /tmp/graviteeio-full-{{ gravitee_full_version.stdout }}/graviteeio-gateway-{{ gravitee_full_version.stdout }}/* /opt/graviteeio-gateway

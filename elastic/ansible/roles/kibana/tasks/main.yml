@@ -1,0 +1,27 @@
+---
+
+- name: install the kibana rpm from a remote repo
+  yum:
+    name: https://artifacts.elastic.co/downloads/kibana/kibana-{{ kinbana_version }}-x86_64.rpm
+    state: present
+
+- name: Copy kibana config
+  template:
+    src: kibana.yml
+    dest: /etc/kibana/kibana.yml
+  register: kibanaconf
+
+- name: Systemd kibana Started
+  systemd:
+    state: started
+    name: kibana
+    daemon_reload: yes
+    enabled: yes
+
+- name: Systemd kibana Restart
+  systemd:
+    state: restarted
+    name: kibana
+    enabled: yes
+  when: kibanaconf.changed
+

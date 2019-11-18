@@ -1,0 +1,80 @@
+http:
+  port: 8082
+  host: 0.0.0.0
+  accesslog:
+    enabled: false
+
+management:
+  type: mongodb
+  mongodb:
+    servers:
+      - host: {{ mongodb01 }}
+        port: 27017
+      - host: {{ mongodb02 }}
+        port: 27017
+      - host: {{ mongodb03 }}
+        port: 27017
+    dbname: {{ gravitee_tenant }}
+    connectTimeout: 500
+    socketTimeout: 250
+
+ratelimit:
+  type: mongodb
+  mongodb:
+    uri: mongodb://{{ mongodb01 }}:27017,{{ mongodb02 }}:27017,{{ mongodb03 }}:27017/{{ gravitee_tenant }}
+
+cache:
+  type: ehcache
+
+reporters:
+  elasticsearch:
+    enabled: true
+    endpoints:
+      - http://{{ elastic_endpoint }}:{{ elastic_port }}
+    index: {{ gravitee_tenant }}
+    cluster: graviteeio-es-cluster
+
+services:
+  core:
+    http:
+      enabled: true
+      port: 18082
+      host: 0.0.0.0
+      authentication:
+        type: none
+
+  sync:
+    cron: '*/5 * * * * *'
+
+  apikeyscache:
+    delay: 10000
+    unit: MILLISECONDS
+    threads: 3 
+
+  local:
+    enabled: false
+    path: ${gravitee.home}/apis
+
+  monitoring:
+    delay: 5000
+    unit: MILLISECONDS
+
+    healthcheck:
+    threads: 3 
+
+  metrics:
+    enabled: true
+    prometheus:
+      enabled: true
+
+handlers:
+  request:
+    transaction:
+      header: X-API-Gateway-CVCCorp-Transaction-Id
+
+tenant: {{ gravitee_tenant }}
+
+policy:
+  api-key:
+    header: X-Api-Key
+    param: api-key

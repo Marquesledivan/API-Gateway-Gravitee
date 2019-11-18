@@ -1,0 +1,95 @@
+jetty:
+  host: 0.0.0.0
+  port: 8083
+  statistics: true
+http:
+  cors:
+  hsts:
+    enabled: true
+    include-sub-domains: true
+    max-age: 31536000
+
+management:
+  type: mongodb
+  mongodb:
+    servers:
+      - host: {{ mongodb01 }}
+        port: 27017
+      - host: {{ mongodb02 }}
+        port: 27017
+      - host: {{ mongodb03 }}
+        port: 27017
+    dbname: {{ gravitee_tenant }}
+
+services:
+  core:
+    http:
+      enabled: true
+      port: 18083
+      host: localhost
+      authentication:
+        type: basic
+        users:
+          admin: adminadmin
+
+analytics:
+  type: elasticsearch
+  elasticsearch:
+    endpoints:
+      - http://{{ elastic_endpoint }}:{{ elastic_port }}
+    index: {{ gravitee_tenant }}
+    cluster: graviteeio-es-cluster
+    index_per_type: true
+    settings:
+      number_of_shards: 5
+      number_of_replicas: 1
+
+security:
+  type: basic
+  providers:
+    - type: memory
+      password-encoding-algo: none
+      users:
+        - user:
+          username: user
+          password: admin
+          roles: MANAGEMENT:USER, PORTAL:USER
+        - user:
+          username: admin
+          password: admin
+          roles: ADMIN
+        - user:
+          username: api
+          password: password
+          roles: MANAGEMENT:API_PUBLISHER, PORTAL:API_PUBLISHER
+        - user:
+          username: application
+          password: password
+          roles: MANAGEMENT:USER, PORTAL:USER
+    - type: gravitee
+
+email:
+  enabled: true
+  host: mail.cvc.com.br
+  port: 25
+  subject: "[Gravitee.io] %s"
+  from: noreply@admin.com.br
+
+  elastic:
+    host: {{ elastic_endpoint }}
+    port: 9200
+
+jwt:
+  secret: myJWT4Gr4v1t33_S3cr3t
+
+swagger:
+  scheme: http
+
+user:
+  login:
+  creation:
+    token:
+  reference:
+
+search:
+  data: ${gravitee.home}/data

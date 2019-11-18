@@ -1,0 +1,6 @@
+- name: Install packages of necessary for ElasticSearch
+  action: >
+    {{ ansible_pkg_mgr }} name={{ item }} state=present update_cache=yes
+  with_items:
+    - java-1.8.0-openjdk
+    - unzip

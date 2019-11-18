@@ -1,0 +1,8 @@
+[Unit]
+Description=GraviteeIO Management API
+After=network-online.target remote-fs.target nss-lookup.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/opt/graviteeio-gateway/bin/gravitee

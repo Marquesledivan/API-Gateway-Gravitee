@@ -1,0 +1,24 @@
+---
+
+- name: install the elastic search rpm from a remote repo
+  yum:
+    name: https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-{{ elasticsearch_version }}.rpm
+    state: present
+
+- name: Systemd elasticsearch Started
+  systemd:
+    state: started
+    name: elasticsearch
+    daemon_reload: yes
+    enabled: yes
+
+- name: Copy elasticsearch 
+  copy:
+    src: elasticsearch.yml
+    dest: /etc/elasticsearch/elasticsearch.yml
+
+- name: Systemd elasticsearch Restart
+  systemd:
+    state: restarted
+    name: elasticsearch
+    enabled: yes

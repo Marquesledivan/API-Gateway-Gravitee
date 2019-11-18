@@ -1,0 +1,61 @@
+---
+
+- name: myip
+  command: curl http://169.254.169.254/latest/meta-data/public-ipv4
+  register: myip
+ 
+- name: Copy Conf Gravitee Mgt Internal
+  template:
+    src: gravitee-mgt.yml
+    dest: /opt/graviteeio-management-api/config/gravitee.yml
+  register: graviteeconf
+
+- name: Copy Graviteeio Management Api
+  copy:
+    src: graviteeio-management-api.service
+    dest: /etc/systemd/system/graviteeio-management-api.service
+  register: graviteeio_management_api
+
+- name: Copy Conf Gravitee Mgt Internal
+  template:
+    src: gravitee.yml
+    dest: /opt/graviteeio-gateway/config/gravitee.yml
+  register: gravitee
+
+
+- name: Copy Graviteeio Api
+  copy:
+    src: graviteeio-api.service
+    dest: /etc/systemd/system/graviteeio-api.service
+  register: graviteeio-api.service
+
+
+- name: Systemd Graviteeio Api Started
+  systemd:
+    state: started
+    name: graviteeio-api.service
+    daemon_reload: yes
+    enabled: yes
+  when: gravitee
+
+- name: Systemd Graviteeio Api Restart
+  systemd:
+    state: restarted
+    name: graviteeio-api.service
+    enabled: yes
+  when: graviteeio_management_api.changed or graviteeconf.changed
+
+- name: Systemd Graviteeio Management Api Started
+  systemd:
+    state: started
+    name: graviteeio-management-api
+    daemon_reload: yes
+    enabled: yes
+  when: graviteeio_management_api.changed
+
+- name: Systemd Graviteeio Management Api Restart
+  systemd:
+    state: restarted
+    name: graviteeio-management-api
+    enabled: yes
+  when: graviteeio_management_api.changed or graviteeconf.changed
